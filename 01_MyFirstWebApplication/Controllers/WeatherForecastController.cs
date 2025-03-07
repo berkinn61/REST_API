@@ -4,30 +4,24 @@ namespace _01_MyFirstWebApplication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class NumberController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        [HttpPut("increment")]
+        public ActionResult<int> Increment([FromBody] int number)
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
+            return Ok(number + 1);
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpPut("add")]
+        public ActionResult<int> Add([FromBody] AddNumbersRequest request)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return Ok(request.Number1 + request.Number2);
         }
+    }
+
+    public class AddNumbersRequest
+    {
+        public int Number1 { get; set; }
+        public int Number2 { get; set; }
     }
 }
