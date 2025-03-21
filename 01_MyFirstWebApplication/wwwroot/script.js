@@ -19,7 +19,7 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
-        });
+        });x
 
         if (!response.ok) {
             throw new Error("Fehler bei der API-Anfrage");
@@ -31,3 +31,4 @@
         document.getElementById("result").innerText = "Fehler: " + error.message;
     }
 }
+        
