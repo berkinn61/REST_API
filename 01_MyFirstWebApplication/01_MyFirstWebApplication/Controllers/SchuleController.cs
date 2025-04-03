@@ -25,7 +25,7 @@ namespace _01_MyFirstWebApplication.Controllers
             }
             catch (Exception ex)
             {
-+ü                return StatusCode(500, $"Fehler beim Hinzufügen: {ex.Message}");
+                return StatusCode(500, $"Fehler beim Hinzufügen: {ex.Message}");
             }
         }
 

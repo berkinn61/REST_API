@@ -1,4 +1,8 @@
-﻿namespace _01_MyFirstWebApplication
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace _01_MyFirstWebApplication
 {
     public class Schueler : Person
     {
@@ -17,32 +21,19 @@
         {
             get
             {
-                int alter = DateTime.Today.Year - Geburtstag.Year;
+                var today = DateTime.Today;
+                int alter = today.Year - Geburtstag.Year;
+                if (today < Geburtstag.AddYears(alter)) alter--; // Korrektur für Geburtsdatum
                 return alter;
             }
-            set { }
         }
 
         public void ZähleSchülerProKlasse(List<Schueler> schuelerListe)
         {
-            foreach (Schueler schueler in schuelerListe)
+            var gruppiert = schuelerListe.GroupBy(s => s.Klasse);
+            foreach (var gruppe in gruppiert)
             {
-                if (!klassen.Contains(schueler.Klasse))
-                {
-                    klassen.Add(schueler.Klasse);
-                }
-            }
-            foreach (string klasse in klassen)
-            {
-                int anzahl = 0;
-                foreach (Schueler schueler in schuelerListe)
-                {
-                    if (schueler.Klasse == klasse)
-                    {
-                        anzahl++;
-                    }
-                }
-                Console.WriteLine($"Klasse {klasse}: {anzahl} Schüler");
+                Console.WriteLine($"Klasse {gruppe.Key}: {gruppe.Count()} Schüler");
             }
         }
 
