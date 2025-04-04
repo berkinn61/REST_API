@@ -1,4 +1,6 @@
-﻿namespace _01_MyFirstWebApplication
+﻿using System;
+
+namespace _01_MyFirstWebApplication
 {
     public class Person
     {
@@ -11,8 +13,8 @@
             {
                 if (value != "männlich" && value != "weiblich")
                 {
-                    Console.WriteLine("Ungültiges Geschlecht eingegeben!");
                     _geschlecht = "unbekannt";
+                    throw new ArgumentException("Ungültiges Geschlecht eingegeben!");
                 }
                 else
                 {
