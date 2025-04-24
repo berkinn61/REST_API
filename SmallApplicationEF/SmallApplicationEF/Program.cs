@@ -4,67 +4,85 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-class Program
+namespace SmallApplicationEF    
 {
-    static void Main(string[] args)
+    class Program
     {
-        using (var context = new DBContext())
+        public static void Main(string[] args)
         {
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
-            var city = new City
+            using (var context = new DBContext())
             {
-                Name = "Dornbirn",
-                People = new List<Person>()
-            };
+                context.Database.Migrate();
 
-            context.Cities.Add(city);
-            context.SaveChanges();
-
-            Console.WriteLine("Möchten Sie eine neue Person hinzufügen? (ja/nein): ");
-            string userInput = Console.ReadLine()?.ToLower();
-
-            while (userInput == "ja")
-            {
-                Console.WriteLine("Geben Sie den Vornamen der Person ein: ");
-                string firstName = Console.ReadLine();
-
-                Console.WriteLine("Geben Sie den Nachnamen der Person ein: ");
-                string lastName = Console.ReadLine();
-
-                Console.WriteLine("Geben Sie das Alter der Person ein: ");
-                int age;
-                while (!int.TryParse(Console.ReadLine(), out age) || age <= 0)
+                var city = context.Cities.Include(c => c.Persons).FirstOrDefault();
+                if (city == null)
                 {
-                    Console.WriteLine("Bitte geben Sie ein gültiges Alter ein: ");
+                    Console.WriteLine("Neue Stadt anlegen:");
+                    Console.Write("Name der Stadt: ");
+                    string cityName = Console.ReadLine() ?? "Unbekannt";
+                    city = new City { Name = cityName };
+                    context.Cities.Add(city);
+                    context.SaveChanges();
                 }
 
-                var newPerson = new Person
+                Console.WriteLine($"Gespeicherte Personen in {city.Name}:");
+                if (city.Persons.Any())
                 {
-                    FirstName = firstName,
-                    LastName = lastName,
-                    Age = age,
-                    City = city
-                };
-
-                city.People.Add(newPerson);
-                context.SaveChanges();
-
-                Console.WriteLine("Möchten Sie eine weitere Person hinzufügen? (ja/nein): ");
-                userInput = Console.ReadLine()?.ToLower();
-            }
-
-            var cities = context.Cities.Include(c => c.People).ToList();
-
-            foreach (var c in cities)
-            {
-                Console.WriteLine($"Stadt: {c.Name}");
-                foreach (var p in c.People)
+                    foreach (var person in city.Persons)
+                    {
+                        Console.WriteLine($"  - ID: {person.Id}, Name: {person.Name}, PLZ: {person.PLZ}");
+                    }
+                }
+                else
                 {
-                    Console.WriteLine($"- {p.FirstName} {p.LastName}, Alter: {p.Age}");
+                    Console.WriteLine("  - Keine Personen vorhanden.");
+                }
+
+                Console.WriteLine("\nNeue Person hinzufügen (Name eingeben, 'exit' zum Beenden):");
+                string? name = Console.ReadLine();
+
+                while (name?.ToLower() != "exit")
+                {
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        Console.WriteLine("Fehler: Name darf nicht leer sein.");
+                        name = Console.ReadLine();
+                        continue;
+                    }
+
+                    string? plz = null;
+                    bool validPlz = false;
+                    while (!validPlz)
+                    {
+                        Console.WriteLine("Postleitzahl eingeben:");
+                        plz = Console.ReadLine();
+
+                        if (string.IsNullOrWhiteSpace(plz))
+                        {
+                            Console.WriteLine("Fehler: PLZ darf nicht leer sein.");
+                        }
+                        else
+                        {
+                            validPlz = true;
+                        }
+                    }
+
+                    var newPerson = new Person
+                    {
+                        Name = name,
+                        PLZ = plz,
+                        City = city
+                    };
+
+                    city.Persons.Add(newPerson);
+                    context.SaveChanges();
+
+                    Console.WriteLine("Person gespeichert! Nächste Person (oder 'exit'):");
+                    name = Console.ReadLine();
                 }
             }
+
+            Console.WriteLine("Programm beendet!");
         }
     }
 }
